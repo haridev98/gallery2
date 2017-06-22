@@ -1,12 +1,15 @@
 package com.hd.gallery;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,11 +19,12 @@ import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import static android.content.ContentValues.TAG;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
            Button a,c,b,m;
     Toast toast;
     Bitmap cam = null;
-    sqlbaseadapter base;
     SharedPreferences data;
     Intent o;
     int x;
@@ -39,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         data = getSharedPreferences("ram",1);
         x=1;
         x= data.getInt("x",1);
-          base = new sqlbaseadapter(this,8);
+
 
          t= (EditText) findViewById(R.id.editText);
         b= (Button) findViewById(R.id.button);
@@ -73,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(this,d, Toast.LENGTH_SHORT).show();
 
 
-           base.insert(d,getBytes(cam));
+           insert(d,getBytes(cam));
 
 
 
@@ -130,6 +134,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bitmap.compress(Bitmap.CompressFormat.JPEG, 0, stream);
         return stream.toByteArray();
     }
+    public long insert(String name, byte[] image){
+        sqlhelp sql = new sqlhelp(this,9);
+        SQLiteDatabase database;
+        database= sql.getWritableDatabase();
 
+
+        ContentValues cv = new  ContentValues();
+        cv.put(sqlhelp.caption,    name);
+        cv.put(sqlhelp.im,   image);
+        long id= database.insert( sqlhelp.tsblename, null, cv );
+        database.close();
+        Log.d(TAG, "insert: ");
+        Toast.makeText(sql.context,"gotit", Toast.LENGTH_LONG).show();
+        return id;
+    }
 
 }
